@@ -6,10 +6,10 @@ const SITE_LANG = "zh_CN";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "Firefly",
+	title: "WP's Blog",
 
 	// 站点副标题
-	subtitle: "Demo site",
+	subtitle: "Welcome to WP's Blog",
 
 	// 站点 URL
 	site_url: "https://wangpan6.top",
