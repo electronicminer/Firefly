@@ -41,7 +41,7 @@ export const projectsData: Project[] = [
 		id: "harmony-markdown-editor",
 		title: "Harmony Markdown Editor",
 		description:
-			一款深度集成 AI 能力、专为 HarmonyOS 6 设计开发的 Markdown 编辑器。继承鸿蒙「原子化服务」「统一生态」「自然交互」理念，界面与动效原汁原味，并将 AI 深度融入写作工作流。⭐ 19 star",
+			"一款深度集成 AI 能力、专为 HarmonyOS 6 设计开发的 Markdown 编辑器。继承鸿蒙「原子化服务」「统一生态」「自然交互」理念，界面与动效原汁原味，并将 AI 深度融入写作工作流。⭐ 19 star",
 		image: "",
 		category: "mobile",
 		techStack: ["TypeScript", "HarmonyOS", "ArkUI"],
