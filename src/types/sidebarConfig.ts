@@ -13,7 +13,6 @@ export type WidgetComponentType =
 	| "dynamic"
 	| "quoteOfTheDay"
 	| "weather"
-	| "siteVisit"
 	| "timeProgress";
 
 export type WidgetComponentConfig = {

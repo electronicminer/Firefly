@@ -21,55 +21,52 @@ const countdownsJson = JSON.stringify(countdowns);
 ---
 
 <WidgetLayout name="⏳ 时间进度" id="time-progress" class={className} style={style}>
-	<div class="py-1 space-y-3">
+	<div class="py-1">
 		<!-- 当前日期 -->
-		<div id="tp-date" class="text-center font-semibold text-neutral-900 dark:text-neutral-100">
+		<div
+			id="tp-date"
+			class="text-center font-semibold text-neutral-900 dark:text-neutral-100 mb-3"
+		>
 			正在加载...
 		</div>
 
-		<div id="tp-countdowns" class="hidden">
+		<!-- 各周期进度 -->
+		<div id="tp-progress" class="hidden">
 			{
-				countdowns.map((c) => (
-					<div
-						class="rounded-lg bg-black/5 dark:bg-white/5 px-3 py-2.5"
-						data-countdown
-						data-name={c.name}
-						data-date={c.date}
-						data-daysleft={c.daysLeft ?? ""}
-					>
-						<div class="text-xs text-neutral-500 dark:text-neutral-400">
-							距离<span class="text-(--primary) font-medium">{c.name}</span>还剩
-						</div>
-						<div class="mt-1 flex items-end justify-between">
-							<span class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 countdown-days">-</span>
-							<span class="text-xs text-neutral-400 dark:text-neutral-500 countdown-date">{c.date}</span>
+				[
+					{ id: "year", label: "本年", unit: "天" },
+					{ id: "month", label: "本月", unit: "天" },
+					{ id: "week", label: "本周", unit: "天" },
+					{ id: "day", label: "今日", unit: "小时" },
+				].map((p) => (
+					<div data-period={p.id} class="text-center py-1.5">
+						<div class="tp-pct text-2xl font-bold text-(--primary) leading-none">-</div>
+						<div class="tp-left mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+							{p.label}还剩 <span class="tp-num font-semibold text-neutral-700 dark:text-neutral-200">-</span> {p.unit}
 						</div>
 					</div>
 				))
 			}
 		</div>
 
-		<!-- 各周期进度 -->
-		<div id="tp-progress" class="hidden space-y-2.5">
+		<!-- 倒计时 -->
+		<div id="tp-countdowns" class="hidden mt-2 border-t border-(--line-divider) pt-2">
 			{
-				[
-					{ id: "year", label: "本年" },
-					{ id: "month", label: "本月" },
-					{ id: "week", label: "本周" },
-					{ id: "day", label: "今日" },
-				].map((p) => (
-					<div data-period={p.id} class="space-y-1">
-						<div class="flex items-center justify-between text-sm">
-							<span class="text-neutral-600 dark:text-neutral-400">
-								{p.label}<span class="ml-1 text-neutral-400 dark:text-neutral-500 tp-left">-</span>还剩
-							</span>
-							<span class="font-semibold tp-pct text-(--primary)">-</span>
+				countdowns.map((c) => (
+					<div
+						data-countdown
+						data-date={c.date}
+						data-daysleft={c.daysLeft ?? ""}
+						class="text-center py-1.5"
+					>
+						<div class="text-xs text-neutral-500 dark:text-neutral-400">
+							距离<span class="text-(--primary) font-medium">{c.name}</span>
 						</div>
-						<div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
-							<div
-								class="h-full rounded-full bg-(--primary) transition-all duration-700 tp-bar"
-								style="width:0%"
-							></div>
+						<div class="countdown-days text-3xl font-bold text-neutral-900 dark:text-neutral-100 leading-none mt-1">
+							-
+						</div>
+						<div class="countdown-date mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+							{c.date}
 						</div>
 					</div>
 				))
@@ -81,10 +78,10 @@ const countdownsJson = JSON.stringify(countdowns);
 <script define:vars={{ countdownsJson }}>
 	const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 	const UNIT = {
-		year: { label: "天", per: "day" },
-		month: { label: "天", per: "day" },
-		week: { label: "天", per: "day" },
-		day: { label: "小时", per: "hour" },
+		year: { label: "天" },
+		month: { label: "天" },
+		week: { label: "天" },
+		day: { label: "小时" },
 	};
 
 	function compute(now) {
@@ -98,7 +95,6 @@ const countdownsJson = JSON.stringify(countdowns);
 		// 周一作为一周起点：Mon=0 ... Sun=6
 		const weekDay = (now.getDay() + 6) % 7;
 
-		// 从「今天 00:00」到目标 00:00 的整天数差（自然日）
 		const todayStart = new Date(
 			now.getFullYear(),
 			now.getMonth(),
@@ -161,12 +157,10 @@ const countdownsJson = JSON.stringify(countdowns);
 
 		const res = compute(now);
 		["year", "month", "week", "day"].forEach((k) => {
-			const r = res[k];
 			const container = document.querySelector(`[data-period="${k}"]`);
 			if (!container) return;
-			container.querySelector(".tp-bar").style.width = r.pct.toFixed(1) + "%";
-			container.querySelector(".tp-pct").textContent = fmtUnit(r.pct);
-			container.querySelector(".tp-left").textContent = `${r.left} ${UNIT[k].label}`;
+			container.querySelector(".tp-pct").textContent = fmtUnit(res[k].pct);
+			container.querySelector(".tp-num").textContent = String(res[k].left);
 		});
 
 		// 倒计时
@@ -181,7 +175,7 @@ const countdownsJson = JSON.stringify(countdowns);
 			const manual = el.getAttribute("data-daysleft");
 			const manualDays = manual && manual.trim() !== "" ? parseInt(manual, 10) : NaN;
 			const days = Number.isNaN(manualDays) ? daysUntil(dateStr) : manualDays;
-			el.querySelector(".countdown-days").textContent = Math.max(days, 0);
+			el.querySelector(".countdown-days").textContent = String(Math.max(days, 0));
 			el.querySelector(".countdown-date").textContent = dateStr;
 		});
 	}
