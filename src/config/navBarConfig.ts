@@ -68,6 +68,9 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			// 番组计划
 			LinkPresets.Bangumi,
 
+			// 音乐可视化
+			LinkPresets.Music,
+
 			// 书签导航
 			LinkPresets.Booknav,
 		],
@@ -134,6 +137,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/dynamic/",
 		icon: "material-symbols:forum-rounded",
 		pageKey: "dynamic",
+	},
+	Music: {
+		name: "音乐",
+		url: "/music/",
+		icon: "material-symbols:music-note-rounded",
+		pageKey: "music",
 	},
 	Archive: {
 		name: "归档",

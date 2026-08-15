@@ -1278,6 +1278,30 @@ export function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 	);
 }
 
+// Fullscreen carousel functions
+export function getDefaultFullscreenCarouselEnabled(): boolean {
+	return backgroundWallpaper.fullscreen?.carousel?.enable ?? false;
+}
+
+export function getStoredFullscreenCarouselEnabled(): boolean {
+	const isSwitchable =
+		backgroundWallpaper.fullscreen?.carousel?.switchable ?? false;
+	if (!isSwitchable) {
+		return getDefaultFullscreenCarouselEnabled();
+	}
+	if (
+		typeof localStorage === "undefined" ||
+		typeof localStorage.getItem !== "function"
+	) {
+		return getDefaultFullscreenCarouselEnabled();
+	}
+	const stored = localStorage.getItem("fullscreenCarouselEnabled");
+	if (stored === null) {
+		return getDefaultFullscreenCarouselEnabled();
+	}
+	return stored === "true";
+}
+
 // Card border functions
 export function getDefaultCardBorderEnabled(): boolean {
 	return siteConfig.card?.border ?? false;
@@ -1294,6 +1318,76 @@ export function getStoredCardBorderEnabled(): boolean {
 	return stored === "true";
 }
 
+export function setFullscreenCarouselEnabled(enabled: boolean): void {
+	const safeEnabled = !!enabled;
+	const isSwitchable =
+		backgroundWallpaper.fullscreen?.carousel?.switchable ?? false;
+	if (
+		isSwitchable &&
+		typeof localStorage !== "undefined" &&
+		typeof localStorage.setItem === "function"
+	) {
+		localStorage.setItem("fullscreenCarouselEnabled", String(safeEnabled));
+	}
+	applyFullscreenCarouselEnabledToDocument(safeEnabled);
+	if (typeof window !== "undefined") {
+		window.dispatchEvent(
+			new CustomEvent("fullscreenCarouselChange", {
+				detail: { enabled: safeEnabled },
+			}),
+		);
+	}
+}
+
+export function applyFullscreenCarouselEnabledToDocument(
+	enabled: boolean,
+): void {
+	if (typeof document === "undefined") {
+		return;
+	}
+	document.documentElement.setAttribute(
+		"data-fullscreen-carousel-enabled",
+		String(enabled),
+	);
+}
+
+// Post cover image functions
+export function getDefaultPostCoverImageEnabled(): boolean {
+	return siteConfig.postListLayout.showCover ?? true;
+}
+
+export function getStoredPostCoverImageEnabled(): boolean {
+	if (
+		typeof localStorage === "undefined" ||
+		typeof localStorage.getItem !== "function"
+	) {
+		return getDefaultPostCoverImageEnabled();
+	}
+	const stored = localStorage.getItem("postCoverImageEnabled");
+	if (stored === null) {
+		return getDefaultPostCoverImageEnabled();
+	}
+	return stored === "true";
+}
+
+export function setPostCoverImageEnabled(enabled: boolean): void {
+	if (
+		typeof localStorage === "undefined" ||
+		typeof localStorage.setItem !== "function"
+	) {
+		return;
+	}
+	localStorage.setItem("postCoverImageEnabled", String(enabled));
+	applyPostCoverImageEnabledToDocument(enabled);
+	if (typeof window !== "undefined") {
+		window.dispatchEvent(
+			new CustomEvent("postCoverImageChange", {
+				detail: { enabled },
+			}),
+		);
+	}
+}
+
 export function setCardBorderEnabled(enabled: boolean): void {
 	if (
 		typeof localStorage === "undefined" ||
@@ -1307,6 +1401,16 @@ export function setCardBorderEnabled(enabled: boolean): void {
 	} else {
 		document.documentElement.classList.remove("enable-card-border");
 	}
+}
+
+export function applyPostCoverImageEnabledToDocument(enabled: boolean): void {
+	if (typeof document === "undefined") {
+		return;
+	}
+	document.documentElement.setAttribute(
+		"data-post-cover-enabled",
+		String(enabled),
+	);
 }
 
 // Card follow theme functions

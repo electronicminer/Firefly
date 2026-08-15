@@ -161,5 +161,14 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	fullscreen: {
 		// 图片位置
 		position: "center",
+		// 全屏壁纸轮播配置，仅在当配置多张图片时生效
+		carousel: {
+			// 是否启用全屏图片轮播；关闭时保持每次刷新随机显示一张
+			enable: true,
+			// 轮播切换间隔（毫秒）
+			interval: 5000,
+			// 是否允许用户通过控制面板切换全屏轮播
+			switchable: true,
+		},
 	},
 };

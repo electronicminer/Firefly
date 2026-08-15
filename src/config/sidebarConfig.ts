@@ -98,10 +98,30 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 				collapseThreshold: 10,
 			},
 		},
+		{
+			// 组件类型：今日一言
+			type: "quoteOfTheDay",
+			// 是否启用该组件
+			enable: true,
+			// 组件位置
+			position: "sticky",
+			// 是否在文章详情页显示
+			showOnPostPage: false,
+		},
 	],
 
 	// 右侧边栏组件配置列表
 	rightComponents: [
+		{
+			// 组件类型：天气组件（根据访客 IP 自动定位，无需配置城市）
+			type: "weather",
+			// 是否启用该组件
+			enable: true,
+			// 组件位置
+			position: "top",
+			// 是否在文章详情页显示
+			showOnPostPage: true,
+		},
 		{
 			// 组件类型：最新动态组件
 			type: "dynamic",
@@ -317,6 +337,22 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 					unknownBuildPlatform: "Unknown CI",
 				},
 			},
+		},
+		{
+			// 组件类型：今日一言
+			type: "quoteOfTheDay",
+			// 是否启用该组件
+			enable: true,
+			// 是否在文章详情页显示
+			showOnPostPage: true,
+		},
+		{
+			// 组件类型：天气组件
+			type: "weather",
+			// 是否启用该组件
+			enable: true,
+			// 是否在文章详情页显示
+			showOnPostPage: true,
 		},
 	],
 };

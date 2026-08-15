@@ -319,6 +319,7 @@ enum I18nKey {
 	wallpaperSettings = "wallpaperSettings",
 	wallpaperTitle = "wallpaperTitle",
 	wallpaperCarousel = "wallpaperCarousel",
+	postCoverImage = "postCoverImage",
 	wavesAnimation = "wavesAnimation",
 	gradientTransition = "gradientTransition",
 	sakuraEffect = "sakuraEffect",

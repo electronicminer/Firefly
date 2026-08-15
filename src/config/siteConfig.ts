@@ -108,6 +108,8 @@ export const siteConfig: SiteConfig = {
 		anime: false,
 		// 动态页面开关
 		dynamic: true,
+		// 音乐可视化页面开关
+		music: true,
 		// 书签导航页面开关
 		booknav: true,
 	},
@@ -134,6 +136,8 @@ export const siteConfig: SiteConfig = {
 		defaultMode: "list",
 		// 移动端默认布局模式，不设置则跟随 defaultMode
 		mobileDefaultMode: "grid",
+		// 是否允许用户切换文章封面图显示
+		allowCoverSwitch: true,
 		// 列表模式下封面图显示在哪一侧："right" 右侧，"left" 左侧
 		// 网格模式的封面固定在卡片顶部，不受此项影响
 		coverPosition: "right",
@@ -288,6 +292,16 @@ export const siteConfig: SiteConfig = {
 		// 支持通配符 *，例如：["i0.hdslb.com", "*.bilibili.com"]
 		// 可解决指定域名图片加载时的 403 问题（如防盗链图片）
 		noReferrerDomains: ["*.hdslb.com", "*.bilibili.com"],
+	},
+
+	// Cookie 同意条配置
+	cookieConsent: {
+		enable: true,
+		message:
+			"本站使用 Cookie 进行访问统计，并借助本地存储记住您的主题与界面偏好。您可自由选择是否接受统计类 Cookie。",
+		acceptText: "接受",
+		rejectText: "拒绝",
+		// privacyPolicyUrl: "/privacy/",
 	},
 
 	// 站点语言，在本配置文件顶部SITE_LANG定义

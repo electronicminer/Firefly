@@ -8,8 +8,10 @@ import {
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import {
+	applyPostCoverImageEnabledToDocument,
 	getDefaultBannerCarouselEnabled,
 	getDefaultBannerTitleEnabled,
+	getDefaultFullscreenCarouselEnabled,
 	getDefaultCardBorderEnabled,
 	getDefaultCardFollowThemeEnabled,
 	getDefaultGradientEnabled,
@@ -17,22 +19,26 @@ import {
 	getDefaultOverlayBlur,
 	getDefaultOverlayCardOpacity,
 	getDefaultOverlayOpacity,
+	getDefaultPostCoverImageEnabled,
 	getDefaultSakuraEnabled,
 	getDefaultWavesEnabled,
 	getHue,
 	getStoredBannerCarouselEnabled,
 	getStoredBannerTitleEnabled,
+	getStoredFullscreenCarouselEnabled,
 	getStoredCardBorderEnabled,
 	getStoredCardFollowThemeEnabled,
 	getStoredGradientEnabled,
 	getStoredOverlayBlur,
 	getStoredOverlayCardOpacity,
 	getStoredOverlayOpacity,
+	getStoredPostCoverImageEnabled,
 	getStoredSakuraEnabled,
 	getStoredWallpaperMode,
 	getStoredWavesEnabled,
 	setBannerCarouselEnabled,
 	setBannerTitleEnabled,
+	setFullscreenCarouselEnabled,
 	setCardBorderEnabled,
 	setCardFollowThemeEnabled,
 	setGradientEnabled,
@@ -40,6 +46,7 @@ import {
 	setOverlayBlur,
 	setOverlayCardOpacity,
 	setOverlayOpacity,
+	setPostCoverImageEnabled,
 	setSakuraEnabled,
 	setWallpaperMode,
 	setWavesEnabled,
@@ -92,6 +99,8 @@ let bannerTitleEnabled = $state(true);
 const defaultBannerTitleEnabled = getDefaultBannerTitleEnabled();
 let bannerCarouselEnabled = $state(true);
 const defaultBannerCarouselEnabled = getDefaultBannerCarouselEnabled();
+let fullscreenCarouselEnabled = $state(true);
+const defaultFullscreenCarouselEnabled = getDefaultFullscreenCarouselEnabled();
 let sakuraEnabled = $state(true);
 const defaultSakuraEnabled = getDefaultSakuraEnabled();
 let overlayOpacity = $state(getDefaultOverlayOpacity());
@@ -100,6 +109,8 @@ let overlayBlur = $state(getDefaultOverlayBlur());
 const defaultOverlayBlur = getDefaultOverlayBlur();
 let overlayCardOpacity = $state(getDefaultOverlayCardOpacity());
 const defaultOverlayCardOpacity = getDefaultOverlayCardOpacity();
+let postCoverImageEnabled = $state(true);
+const defaultPostCoverImageEnabled = getDefaultPostCoverImageEnabled();
 let cardBorderEnabled = $state(false);
 const defaultCardBorderEnabled = getDefaultCardBorderEnabled();
 let cardFollowThemeEnabled = $state(false);
@@ -118,9 +129,15 @@ const isBannerTitleEnabled =
 	backgroundWallpaper.common?.homeText?.enable ?? false;
 const isBannerTitleSwitchable =
 	isBannerTitleEnabled && displaySettingsConfig.bannerTitleSwitchable;
-const isBannerCarouselSwitchable =
-	displaySettingsConfig.bannerCarouselSwitchable;
+const isBannerCarouselSwitchable = displaySettingsConfig.bannerCarouselSwitchable;
+// 是否允许用户切换全屏轮播
+const isFullscreenCarouselSwitchable =
+	backgroundWallpaper.fullscreen?.carousel?.switchable ?? false;
+// 是否允许用户切换樱花特效
 const isSakuraSwitchable = displaySettingsConfig.sakuraSwitchable;
+// 是否允许用户切换文章封面图
+const isPostCoverImageSwitchable =
+	siteConfig.postListLayout.allowCoverSwitch ?? true;
 const isCardBorderSwitchable = displaySettingsConfig.cardBorderSwitchable;
 const isCardFollowThemeSwitchable =
 	displaySettingsConfig.cardFollowThemeSwitchable;
@@ -129,7 +146,8 @@ const hasBannerSettings =
 	isWavesSwitchable ||
 	isGradientSwitchable ||
 	isBannerTitleSwitchable ||
-	isBannerCarouselSwitchable;
+	isBannerCarouselSwitchable ||
+	isFullscreenCarouselSwitchable;
 const overlaySwitchableConfig = displaySettingsConfig.overlaySwitchable;
 const isOverlaySettingsSwitchable =
 	typeof overlaySwitchableConfig === "boolean" ? overlaySwitchableConfig : true;
@@ -163,7 +181,9 @@ let bannerSettingsIsDefault = $derived(
 		(!isWavesSwitchable || wavesEnabled === defaultWavesEnabled) &&
 		(!isGradientSwitchable || gradientEnabled === defaultGradientEnabled) &&
 		(!isBannerCarouselSwitchable ||
-			bannerCarouselEnabled === defaultBannerCarouselEnabled),
+			bannerCarouselEnabled === defaultBannerCarouselEnabled) &&
+		(!isFullscreenCarouselSwitchable ||
+			fullscreenCarouselEnabled === defaultFullscreenCarouselEnabled),
 );
 let cardSettingsIsDefault = $derived(
 	(!isCardBorderSwitchable || cardBorderEnabled === defaultCardBorderEnabled) &&
@@ -174,6 +194,7 @@ const hasAnyContent =
 	showThemeColor ||
 	isWallpaperSwitchable ||
 	allowLayoutSwitch ||
+	isPostCoverImageSwitchable ||
 	hasBannerSettings ||
 	hasOverlaySettings ||
 	isSakuraSwitchable;
@@ -333,6 +354,13 @@ function resetBannerSettings() {
 		bannerCarouselEnabled = defaultBannerCarouselEnabled;
 		setBannerCarouselEnabled(defaultBannerCarouselEnabled);
 	}
+	if (
+		isFullscreenCarouselSwitchable &&
+		fullscreenCarouselEnabled !== defaultFullscreenCarouselEnabled
+	) {
+		fullscreenCarouselEnabled = defaultFullscreenCarouselEnabled;
+		setFullscreenCarouselEnabled(defaultFullscreenCarouselEnabled);
+	}
 }
 
 function resetOverlaySettings() {
@@ -375,9 +403,19 @@ function toggleBannerCarouselEnabled() {
 	setBannerCarouselEnabled(bannerCarouselEnabled);
 }
 
+function toggleFullscreenCarouselEnabled() {
+	fullscreenCarouselEnabled = !fullscreenCarouselEnabled;
+	setFullscreenCarouselEnabled(fullscreenCarouselEnabled);
+}
+
 function toggleSakuraEnabled() {
 	sakuraEnabled = !sakuraEnabled;
 	setSakuraEnabled(sakuraEnabled);
+}
+
+function togglePostCoverImageEnabled() {
+	postCoverImageEnabled = !postCoverImageEnabled;
+	setPostCoverImageEnabled(postCoverImageEnabled);
 }
 
 function toggleCardBorderEnabled() {
@@ -492,9 +530,16 @@ onMount(() => {
 	// 从localStorage读取横幅轮播状态
 	bannerCarouselEnabled = getStoredBannerCarouselEnabled();
 
+	// 从localStorage读取全屏轮播状态
+	fullscreenCarouselEnabled = getStoredFullscreenCarouselEnabled();
+
 	// 从localStorage读取樱花特效状态
 	sakuraEnabled = getStoredSakuraEnabled();
 
+	// 从localStorage读取文章封面图状态
+	postCoverImageEnabled = getStoredPostCoverImageEnabled();
+	// 将状态应用到文档
+	applyPostCoverImageEnabledToDocument(postCoverImageEnabled);
 	// 从localStorage读取卡片样式状态
 	cardBorderEnabled = getStoredCardBorderEnabled();
 	cardFollowThemeEnabled = getStoredCardFollowThemeEnabled();
@@ -691,6 +736,115 @@ $effect(() => {
 		</div>
 		{/if}
 
+    <!-- Banner Settings Section -->
+    {#if (wallpaperMode === WALLPAPER_BANNER || wallpaperMode === WALLPAPER_FULLSCREEN) && hasBannerSettings}
+        <div class="mt-2 mb-2">
+            <div class="flex gap-2 font-bold text-lg text-neutral-900 dark:text-neutral-100 transition relative ml-3 mb-2
+                before:w-1 before:h-4 before:rounded-md before:bg-(--primary)
+                before:absolute before:-left-3 before:top-1/2 before:-translate-y-1/2"
+            >
+                {i18n(I18nKey.wallpaperSettings)}
+                <button aria-label="Reset to Default" class="btn-regular w-7 h-7 rounded-md  active:scale-90"
+                        class:opacity-0={bannerSettingsIsDefault} class:pointer-events-none={bannerSettingsIsDefault} onclick={resetBannerSettings}>
+                    <div class="text-(--btn-content)">
+                        <Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
+                    </div>
+                </button>
+            </div>
+            <div class="space-y-1">
+                <!-- Banner Title Switch -->
+                {#if isBannerTitleSwitchable}
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={bannerTitleEnabled}
+                    onclick={toggleBannerTitleEnabled}
+                >
+                    <Icon icon="material-symbols:titlecase-rounded" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.wallpaperTitle)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={bannerTitleEnabled}
+                         class:bg-(--btn-regular-bg-active)={!bannerTitleEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!bannerTitleEnabled}
+                             class:left-5={bannerTitleEnabled}></div>
+                    </div>
+                </button>
+                {/if}
+                <!-- Banner Carousel Switch -->
+                {#if isBannerCarouselSwitchable && wallpaperMode === WALLPAPER_BANNER}
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={bannerCarouselEnabled}
+                    onclick={toggleBannerCarouselEnabled}
+                >
+                    <Icon icon="material-symbols:view-carousel-outline" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.wallpaperCarousel)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={bannerCarouselEnabled}
+                         class:bg-(--btn-regular-bg-active)={!bannerCarouselEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!bannerCarouselEnabled}
+                             class:left-5={bannerCarouselEnabled}></div>
+                    </div>
+                </button>
+                {/if}
+                <!-- Fullscreen Carousel Switch -->
+                {#if isFullscreenCarouselSwitchable && wallpaperMode === WALLPAPER_FULLSCREEN}
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={fullscreenCarouselEnabled}
+                    onclick={toggleFullscreenCarouselEnabled}
+                >
+                    <Icon icon="material-symbols:view-carousel-outline" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.wallpaperCarousel)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={fullscreenCarouselEnabled}
+                         class:bg-(--btn-regular-bg-active)={!fullscreenCarouselEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!fullscreenCarouselEnabled}
+                             class:left-5={fullscreenCarouselEnabled}></div>
+                    </div>
+                </button>
+                {/if}
+                <!-- Waves Animation Switch -->
+                {#if isWavesSwitchable}
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={wavesEnabled}
+                    onclick={toggleWavesEnabled}
+                >
+                    <Icon icon="material-symbols:airwave-rounded" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.wavesAnimation)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={wavesEnabled}
+                         class:bg-(--btn-regular-bg-active)={!wavesEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!wavesEnabled}
+                             class:left-5={wavesEnabled}></div>
+                    </div>
+                </button>
+                {/if}
+                <!-- Gradient Transition Switch -->
+                {#if isGradientSwitchable}
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={gradientEnabled}
+                    onclick={toggleGradientEnabled}
+                >
+                    <Icon icon="material-symbols:gradient" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.gradientTransition)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={gradientEnabled}
+                         class:bg-(--btn-regular-bg-active)={!gradientEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!gradientEnabled}
+                             class:left-5={gradientEnabled}></div>
+                    </div>
+                </button>
+                {/if}
+            </div>
+        </div>
+    {/if}
 		<!-- Card Settings Section -->
 		{#if isCardBorderSwitchable || isCardFollowThemeSwitchable}
 		<div>
@@ -800,6 +954,88 @@ $effect(() => {
 		</div>
 		{/if}
 
+    <!-- Layout Switch Section -->
+    {#if allowLayoutSwitch}
+        <div class="mt-2 mb-2">
+            <div class="flex gap-2 font-bold text-lg text-neutral-900 dark:text-neutral-100 transition relative ml-3 mb-2
+                before:w-1 before:h-4 before:rounded-md before:bg-(--primary)
+                before:absolute before:-left-3 before:top-1/2 before:-translate-y-1/2"
+            >
+                {i18n(I18nKey.postListLayout)}
+                <button aria-label="Reset to Default" class="btn-regular w-7 h-7 rounded-md  active:scale-90"
+                        class:opacity-0={currentLayout === effectiveDefaultLayout} class:pointer-events-none={currentLayout === effectiveDefaultLayout} onclick={resetLayout}>
+                    <div class="text-(--btn-content)">
+                        <Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
+                    </div>
+                </button>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    aria-label={i18n(I18nKey.postListLayoutList)}
+                    class="flex-1 btn-regular rounded-md py-2 px-3 flex items-center justify-center gap-2 active:scale-95 transition-all relative overflow-hidden"
+                    class:opacity-60={currentLayout !== 'list'}
+                    class:bg-(--btn-regular-bg-hover)={currentLayout === 'list'}
+                    disabled={isSwitching}
+                    onclick={switchLayout}
+                    title={i18n(I18nKey.postListLayoutList)}
+                >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">{i18n(I18nKey.postListLayoutList)}</span>
+                </button>
+                <button
+                    aria-label={i18n(I18nKey.postListLayoutGrid)}
+                    class="flex-1 btn-regular rounded-md py-2 px-3 flex items-center justify-center gap-2 active:scale-95 transition-all relative overflow-hidden"
+                    class:opacity-60={currentLayout !== 'grid'}
+                    class:bg-(--btn-regular-bg-hover)={currentLayout === 'grid'}
+                    disabled={isSwitching}
+                    onclick={switchLayout}
+                    title={i18n(I18nKey.postListLayoutGrid)}
+                >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/>
+                    </svg>
+                    <span class="text-xs font-medium">{i18n(I18nKey.postListLayoutGrid)}</span>
+                </button>
+            </div>
+        </div>
+    {/if}
+
+    <!-- Post Cover Image Switch Section -->
+    {#if isPostCoverImageSwitchable}
+        <div class="mt-2 mb-2">
+            <div class="flex gap-2 font-bold text-lg text-neutral-900 dark:text-neutral-100 transition relative ml-3 mb-2
+                before:w-1 before:h-4 before:rounded-md before:bg-(--primary)
+                before:absolute before:-left-3 before:top-1/2 before:-translate-y-1/2"
+            >
+                {i18n(I18nKey.postCoverImage)}
+                <button aria-label="Reset to Default" class="btn-regular w-7 h-7 rounded-md  active:scale-90"
+                        class:opacity-0={postCoverImageEnabled === defaultPostCoverImageEnabled} class:pointer-events-none={postCoverImageEnabled === defaultPostCoverImageEnabled} onclick={() => { postCoverImageEnabled = defaultPostCoverImageEnabled; setPostCoverImageEnabled(defaultPostCoverImageEnabled); }}>
+                    <div class="text-(--btn-content)">
+                        <Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.875rem]"></Icon>
+                    </div>
+                </button>
+            </div>
+            <div class="space-y-1">
+                <button
+                    class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+                    class:bg-(--btn-regular-bg-hover)={postCoverImageEnabled}
+                    onclick={togglePostCoverImageEnabled}
+                >
+                    <Icon icon="material-symbols:image" class="text-[1.25rem] shrink-0"></Icon>
+                    <span class="text-sm flex-1">{i18n(I18nKey.postCoverImage)}</span>
+                    <div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+                         class:bg-(--primary)={postCoverImageEnabled}
+                         class:bg-(--btn-regular-bg-active)={!postCoverImageEnabled}>
+                        <div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+                             class:left-0.5={!postCoverImageEnabled}
+                             class:left-5={postCoverImageEnabled}></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    {/if}
 		<!-- Overlay Settings Section -->
 		{#if wallpaperMode === WALLPAPER_OVERLAY && hasOverlaySettings}
 		<div class="">

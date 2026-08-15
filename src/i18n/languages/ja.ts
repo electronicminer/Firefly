@@ -327,6 +327,7 @@ export const ja: Translation = {
 	[Key.wallpaperSettings]: "壁紙設定",
 	[Key.wallpaperTitle]: "ホーム壁紙タイトル",
 	[Key.wallpaperCarousel]: "壁紙カルーセル",
+	[Key.postCoverImage]: "記事のカバー画像",
 	[Key.wavesAnimation]: "波アニメーション",
 	[Key.gradientTransition]: "グラデーション遷移",
 	[Key.sakuraEffect]: "桜エフェクト",
