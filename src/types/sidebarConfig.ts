@@ -12,7 +12,9 @@ export type WidgetComponentType =
 	| "siteInfo"
 	| "dynamic"
 	| "quoteOfTheDay"
-	| "weather";
+	| "weather"
+	| "siteVisit"
+	| "timeProgress";
 
 export type WidgetComponentConfig = {
 	type: WidgetComponentType; // 组件类型

@@ -11,7 +11,9 @@ import QuoteOfTheDay from "@/components/widget/QuoteOfTheDay.astro";
 import SidebarTOC from "@/components/widget/SidebarTOC.astro";
 import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
+import SiteVisit from "@/components/widget/SiteVisit.astro";
 import Tags from "@/components/widget/Tags.astro";
+import TimeProgress from "@/components/widget/TimeProgress.astro";
 import Weather from "@/components/widget/Weather.astro";
 import { sidebarLayoutConfig } from "@/config";
 import type {
@@ -57,6 +59,8 @@ const componentMap = {
 	dynamic: Dynamic,
 	quoteOfTheDay: QuoteOfTheDay,
 	weather: Weather,
+	siteVisit: SiteVisit,
+	timeProgress: TimeProgress,
 };
 
 // 获取侧边栏位置

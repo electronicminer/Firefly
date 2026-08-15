@@ -123,6 +123,26 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 		},
 		{
+			// 组件类型：访问统计（不蒜子计数）
+			type: "siteVisit",
+			// 是否启用该组件
+			enable: true,
+			// 组件位置
+			position: "sticky",
+			// 是否在文章详情页显示
+			showOnPostPage: true,
+		},
+		{
+			// 组件类型：时间进度（年/月/周/日剩余 + 节日倒计时）
+			type: "timeProgress",
+			// 是否启用该组件
+			enable: true,
+			// 组件位置
+			position: "sticky",
+			// 是否在文章详情页显示
+			showOnPostPage: false,
+		},
+		{
 			// 组件类型：最新动态组件
 			type: "dynamic",
 			// 是否启用该组件

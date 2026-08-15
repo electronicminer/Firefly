@@ -1,0 +1,186 @@
+---
+import WidgetLayout from "@/components/common/WidgetLayout.astro";
+
+// ── 倒计时配置（可自由增删）────────────────────────────
+// daysLeft 会自动计算，只需填日期；如需固定天数可手动写 daysLeft
+const countdowns = [
+	{
+		name: "中秋",
+		date: "2026-09-25",
+		// daysLeft: 41,   // 可手动覆盖（可选）
+	},
+];
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const countdownsJson = JSON.stringify(countdowns);
+---
+
+<WidgetLayout name="⏳ 时间进度" id="time-progress" class={className} style={style}>
+	<div class="py-1 space-y-3">
+		<!-- 当前日期 -->
+		<div id="tp-date" class="text-center font-semibold text-neutral-900 dark:text-neutral-100">
+			正在加载...
+		</div>
+
+		<div id="tp-countdowns" class="hidden">
+			{#each countdowns as c}
+				<div
+					class="rounded-lg bg-black/5 dark:bg-white/5 px-3 py-2.5"
+					data-countdown
+					data-name={c.name}
+					data-date={c.date}
+					data-daysleft={c.daysLeft ?? ""}
+				>
+					<div class="text-xs text-neutral-500 dark:text-neutral-400">
+						距离<span class="text-(--primary) font-medium">{c.name}</span>还剩
+					</div>
+					<div class="mt-1 flex items-end justify-between">
+						<span class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 countdown-days">-</span>
+						<span class="text-xs text-neutral-400 dark:text-neutral-500 countdown-date">{c.date}</span>
+					</div>
+				</div>
+			{/each}
+		</div>
+
+		<!-- 各周期进度 -->
+		<div id="tp-progress" class="hidden space-y-2.5">
+			{#each [
+				{ id: "year", label: "本年" },
+				{ id: "month", label: "本月" },
+				{ id: "week", label: "本周" },
+				{ id: "day", label: "今日" },
+			] as p}
+				<div data-period={p.id} class="space-y-1">
+					<div class="flex items-center justify-between text-sm">
+						<span class="text-neutral-600 dark:text-neutral-400">
+							{p.label}<span class="ml-1 text-neutral-400 dark:text-neutral-500 tp-left">-</span>还剩
+						</span>
+						<span class="font-semibold tp-pct text-(--primary)">-</span>
+					</div>
+					<div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+						<div
+							class="h-full rounded-full bg-(--primary) transition-all duration-700 tp-bar"
+							style="width:0%"
+						></div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</div>
+</WidgetLayout>
+
+<script define:vars={{ countdownsJson }}>
+	const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+	const UNIT = {
+		year: { label: "天", per: "day" },
+		month: { label: "天", per: "day" },
+		week: { label: "天", per: "day" },
+		day: { label: "小时", per: "hour" },
+	};
+
+	function compute(now) {
+		const startOfYear = new Date(now.getFullYear(), 0, 1);
+		const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+		const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+		const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+		const daysInYear = (endOfYear - startOfYear) / 86400000;
+		const daysInMonth = (nextMonth - startOfMonth) / 86400000;
+
+		// 周一作为一周起点：Mon=0 ... Sun=6
+		const weekDay = (now.getDay() + 6) % 7;
+
+		// 从「今天 00:00」到目标 00:00 的整天数差（自然日）
+		const todayStart = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+		).getTime();
+		const daysElapsedYear =
+			Math.round((todayStart - startOfYear.getTime()) / 86400000) + 1;
+		const daysElapsedMonth = now.getDate();
+
+		const daysLeftInYear = daysInYear - daysElapsedYear;
+		const daysLeftInMonth = daysInMonth - daysElapsedMonth;
+		const daysLeftInWeek = 7 - (weekDay + 1);
+		const hoursLeftInDay = 24 - now.getHours();
+
+		return {
+			year: {
+				left: daysLeftInYear,
+				pct: (daysElapsedYear / daysInYear) * 100,
+			},
+			month: {
+				left: daysLeftInMonth,
+				pct: (daysElapsedMonth / daysInMonth) * 100,
+			},
+			week: {
+				left: daysLeftInWeek,
+				pct: ((weekDay + 1) / 7) * 100,
+			},
+			day: {
+				left: hoursLeftInDay,
+				pct: (hoursLeftInDay / 24) * 100,
+			},
+		};
+	}
+
+	function fmtUnit(pct) {
+		return pct.toFixed(1).replace(/\.0$/, "") + "%";
+	}
+
+	function fmtDate(d) {
+		return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${WEEKDAYS[d.getDay()]}`;
+	}
+
+	function daysUntil(dateStr) {
+		const target = new Date(dateStr + "T00:00:00");
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		return Math.round((target - today) / 86400000);
+	}
+
+	function render() {
+		const now = new Date();
+		const dateEl = document.getElementById("tp-date");
+		const progressEl = document.getElementById("tp-progress");
+		const countEl = document.getElementById("tp-countdowns");
+		if (!dateEl || !progressEl || !countEl) return;
+
+		dateEl.textContent = fmtDate(now);
+		progressEl.classList.remove("hidden");
+		countEl.classList.remove("hidden");
+
+		const res = compute(now);
+		["year", "month", "week", "day"].forEach((k) => {
+			const r = res[k];
+			const container = document.querySelector(`[data-period="${k}"]`);
+			if (!container) return;
+			container.querySelector(".tp-bar").style.width = r.pct.toFixed(1) + "%";
+			container.querySelector(".tp-pct").textContent = fmtUnit(r.pct);
+			container.querySelector(".tp-left").textContent = `${r.left} ${UNIT[k].label}`;
+		});
+
+		// 倒计时
+		let cd;
+		try {
+			cd = JSON.parse(countdownsJson);
+		} catch {
+			cd = [];
+		}
+		document.querySelectorAll("[data-countdown]").forEach((el) => {
+			const dateStr = el.getAttribute("data-date");
+			const manual = el.getAttribute("data-daysleft");
+			const days = manual ? parseInt(manual, 10) : daysUntil(dateStr);
+			el.querySelector(".countdown-days").textContent = Math.max(days, 0);
+			el.querySelector(".countdown-date").textContent = dateStr;
+		});
+	}
+
+	render();
+	document.addEventListener("astro:page-load", render);
+</script>
