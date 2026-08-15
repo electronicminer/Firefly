@@ -4,7 +4,7 @@ published: 2026-08-15 20:30:00
 description: "这是我的第一篇博客，用来展示 Firefly 主题的文章写作方式和常用 Markdown 语法，欢迎参考。"
 tags: ["教程"]
 category: "随笔"
-image: "src/assets/images/avatar.avif"
+image: "/assets/images/avatar-cover.avif"
 pinned: true
 ---
 
