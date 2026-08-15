@@ -39,6 +39,9 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	// 是否显启用歌词
 	showLyrics: false,
 
+	// 是否自动播放（浏览器可能阻止有声自动播放，需用户交互后才会响）
+	autoPlay: true,
+
 	// Meting API 配置
 	meting: {
 		// Meting API 地址
