@@ -108,6 +108,16 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			// 是否在文章详情页显示
 			showOnPostPage: false,
 		},
+		{
+			// 组件类型：Umami 统计（总浏览量 / 访问数 / 游客数）
+			type: "umamiStats",
+			// 是否启用该组件
+			enable: true,
+			// 组件位置
+			position: "sticky",
+			// 是否在文章详情页显示
+			showOnPostPage: false,
+		},
 	],
 
 	// 右侧边栏组件配置列表
@@ -125,16 +135,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		{
 			// 组件类型：时间进度（年/月/周/日剩余 + 节日倒计时）
 			type: "timeProgress",
-			// 是否启用该组件
-			enable: true,
-			// 组件位置
-			position: "sticky",
-			// 是否在文章详情页显示
-			showOnPostPage: false,
-		},
-		{
-			// 组件类型：Umami 统计（总浏览量 / 访问数 / 游客数）
-			type: "umamiStats",
 			// 是否启用该组件
 			enable: true,
 			// 组件位置

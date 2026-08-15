@@ -1,14 +1,18 @@
 ---
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 
-// ── 倒计时配置（可自由增删）────────────────────────────
-// daysLeft 会自动计算，只需填日期；如需固定天数可手动写 daysLeft
-const countdowns = [
-	{
-		name: "中秋",
-		date: "2026-09-25",
-		// daysLeft: 41,   // 可手动覆盖（可选）
-	},
+// ── 年度节日提醒配置（可自由增删）───────────────────────
+// 组件会自动找到「最近的下一个」节日来提醒。
+// ⚠️ 农历节日（春节/端午/中秋等）每年公历日期都不同，需按年更新！
+//    当前填的是 2026 年的公历日期。
+const holidays = [
+	{ name: "元旦", month: 1, day: 1 }, // 2026-01-01
+	{ name: "春节", month: 2, day: 17 }, // 2026-02-17（农历，需按年更新）
+	{ name: "清明", month: 4, day: 5 }, // 2026-04-05
+	{ name: "劳动节", month: 5, day: 1 }, // 2026-05-01
+	{ name: "端午", month: 6, day: 19 }, // 2026-06-19（农历，需按年更新）
+	{ name: "中秋", month: 9, day: 25 }, // 2026-09-25（农历，需按年更新）
+	{ name: "国庆", month: 10, day: 1 }, // 2026-10-01
 ];
 
 interface Props {
@@ -17,7 +21,7 @@ interface Props {
 }
 
 const { class: className, style } = Astro.props;
-const countdownsJson = JSON.stringify(countdowns);
+const holidaysJson = JSON.stringify(holidays);
 ---
 
 <WidgetLayout name="⏳ 时间进度" id="time-progress" class={className} style={style}>
@@ -49,40 +53,24 @@ const countdownsJson = JSON.stringify(countdowns);
 			}
 		</div>
 
-		<!-- 倒计时 -->
-		<div id="tp-countdowns" class="hidden mt-2 border-t border-(--line-divider) pt-2">
-			{
-				countdowns.map((c) => (
-					<div
-						data-countdown
-						data-date={c.date}
-						data-daysleft={c.daysLeft ?? ""}
-						class="text-center py-1.5"
-					>
-						<div class="text-xs text-neutral-500 dark:text-neutral-400">
-							距离<span class="text-(--primary) font-medium">{c.name}</span>
-						</div>
-						<div class="countdown-days text-3xl font-bold text-neutral-900 dark:text-neutral-100 leading-none mt-1">
-							-
-						</div>
-						<div class="countdown-date mt-1 text-xs text-neutral-400 dark:text-neutral-500">
-							{c.date}
-						</div>
-					</div>
-				))
-			}
+		<!-- 最近节日倒计时 -->
+		<div
+			id="tp-holiday"
+			class="hidden mt-2 border-t border-(--line-divider) pt-3 text-center"
+		>
+			<div class="text-xs text-neutral-500 dark:text-neutral-400">
+				距离<span class="tp-hname text-(--primary) font-medium">-</span>
+			</div>
+			<div class="tp-hdays text-3xl font-bold text-neutral-900 dark:text-neutral-100 leading-none mt-1">
+				-
+			</div>
+			<div class="tp-hdate mt-1 text-xs text-neutral-400 dark:text-neutral-500">-</div>
 		</div>
 	</div>
 </WidgetLayout>
 
-<script define:vars={{ countdownsJson }}>
+<script define:vars={{ holidaysJson }}>
 	const WEEKDAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-	const UNIT = {
-		year: { label: "天" },
-		month: { label: "天" },
-		week: { label: "天" },
-		day: { label: "小时" },
-	};
 
 	function compute(now) {
 		const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -137,23 +125,40 @@ const countdownsJson = JSON.stringify(countdowns);
 		return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${WEEKDAYS[d.getDay()]}`;
 	}
 
-	function daysUntil(dateStr) {
-		const target = new Date(dateStr + "T00:00:00");
-		const now = new Date();
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		return Math.round((target - today) / 86400000);
+	function pad(n) {
+		return String(n).padStart(2, "0");
+	}
+
+	// 找到最近的下一个节日（含跨年回滚），返回 { name, days, date, isToday }
+	function nearestHoliday(now, holidays) {
+		const year = now.getFullYear();
+		// 本年度各节日 + 明年元旦（保证跨年也能提醒）
+		const candidates = holidays
+			.map((h) => ({ name: h.name, date: new Date(year, h.month - 1, h.day) }))
+			.concat({ name: holidays[0].name, date: new Date(year + 1, holidays[0].month - 1, holidays[0].day) })
+			.filter((c) => c.date >= now)
+			.sort((a, b) => a.date - b.date);
+
+		if (candidates.length === 0) return null;
+		const nearest = candidates[0];
+		const days = Math.ceil((nearest.date - now) / 86400000);
+		return {
+			name: nearest.name,
+			days: days === 0 ? "今天" : String(days),
+			date: `${nearest.date.getFullYear()}-${pad(nearest.date.getMonth() + 1)}-${pad(nearest.date.getDate())}`,
+			isToday: days === 0,
+		};
 	}
 
 	function render() {
 		const now = new Date();
 		const dateEl = document.getElementById("tp-date");
 		const progressEl = document.getElementById("tp-progress");
-		const countEl = document.getElementById("tp-countdowns");
-		if (!dateEl || !progressEl || !countEl) return;
+		const holidayEl = document.getElementById("tp-holiday");
+		if (!dateEl || !progressEl || !holidayEl) return;
 
 		dateEl.textContent = fmtDate(now);
 		progressEl.classList.remove("hidden");
-		countEl.classList.remove("hidden");
 
 		const res = compute(now);
 		["year", "month", "week", "day"].forEach((k) => {
@@ -163,21 +168,20 @@ const countdownsJson = JSON.stringify(countdowns);
 			container.querySelector(".tp-num").textContent = String(res[k].left);
 		});
 
-		// 倒计时
-		let cd;
+		// 最近节日
+		let holidays;
 		try {
-			cd = JSON.parse(countdownsJson);
+			holidays = JSON.parse(holidaysJson);
 		} catch {
-			cd = [];
+			holidays = [];
 		}
-		document.querySelectorAll("[data-countdown]").forEach((el) => {
-			const dateStr = el.getAttribute("data-date");
-			const manual = el.getAttribute("data-daysleft");
-			const manualDays = manual && manual.trim() !== "" ? parseInt(manual, 10) : NaN;
-			const days = Number.isNaN(manualDays) ? daysUntil(dateStr) : manualDays;
-			el.querySelector(".countdown-days").textContent = String(Math.max(days, 0));
-			el.querySelector(".countdown-date").textContent = dateStr;
-		});
+		if (holidays.length === 0) return;
+		const nh = nearestHoliday(now, holidays);
+		if (!nh) return;
+		holidayEl.classList.remove("hidden");
+		holidayEl.querySelector(".tp-hname").textContent = nh.name;
+		holidayEl.querySelector(".tp-hdays").textContent = nh.days;
+		holidayEl.querySelector(".tp-hdate").textContent = nh.date;
 	}
 
 	render();
