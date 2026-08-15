@@ -110,6 +110,8 @@ export const siteConfig: SiteConfig = {
 		dynamic: true,
 		// 音乐可视化页面开关
 		music: true,
+		// 项目展示页面开关
+		projects: true,
 		// 书签导航页面开关
 		booknav: true,
 	},
