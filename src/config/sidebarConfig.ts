@@ -133,8 +133,8 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 		},
 		{
-			// 组件类型：时间进度（年/月/周/日剩余 + 节日倒计时）
-			type: "timeProgress",
+			// 组件类型：时间进度组件（年/月/周/日进度 + 最近节日倒计时）
+			type: "schedule",
 			// 是否启用该组件
 			enable: true,
 			// 组件位置

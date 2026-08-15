@@ -13,8 +13,8 @@ export type WidgetComponentType =
 	| "dynamic"
 	| "quoteOfTheDay"
 	| "weather"
-	| "timeProgress"
-	| "umamiStats";
+	| "umamiStats"
+	| "schedule";
 
 export type WidgetComponentConfig = {
 	type: WidgetComponentType; // 组件类型
