@@ -28,48 +28,52 @@ const countdownsJson = JSON.stringify(countdowns);
 		</div>
 
 		<div id="tp-countdowns" class="hidden">
-			{#each countdowns as c}
-				<div
-					class="rounded-lg bg-black/5 dark:bg-white/5 px-3 py-2.5"
-					data-countdown
-					data-name={c.name}
-					data-date={c.date}
-					data-daysleft={c.daysLeft ?? ""}
-				>
-					<div class="text-xs text-neutral-500 dark:text-neutral-400">
-						距离<span class="text-(--primary) font-medium">{c.name}</span>还剩
+			{
+				countdowns.map((c) => (
+					<div
+						class="rounded-lg bg-black/5 dark:bg-white/5 px-3 py-2.5"
+						data-countdown
+						data-name={c.name}
+						data-date={c.date}
+						data-daysleft={c.daysLeft ?? ""}
+					>
+						<div class="text-xs text-neutral-500 dark:text-neutral-400">
+							距离<span class="text-(--primary) font-medium">{c.name}</span>还剩
+						</div>
+						<div class="mt-1 flex items-end justify-between">
+							<span class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 countdown-days">-</span>
+							<span class="text-xs text-neutral-400 dark:text-neutral-500 countdown-date">{c.date}</span>
+						</div>
 					</div>
-					<div class="mt-1 flex items-end justify-between">
-						<span class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 countdown-days">-</span>
-						<span class="text-xs text-neutral-400 dark:text-neutral-500 countdown-date">{c.date}</span>
-					</div>
-				</div>
-			{/each}
+				))
+			}
 		</div>
 
 		<!-- 各周期进度 -->
 		<div id="tp-progress" class="hidden space-y-2.5">
-			{#each [
-				{ id: "year", label: "本年" },
-				{ id: "month", label: "本月" },
-				{ id: "week", label: "本周" },
-				{ id: "day", label: "今日" },
-			] as p}
-				<div data-period={p.id} class="space-y-1">
-					<div class="flex items-center justify-between text-sm">
-						<span class="text-neutral-600 dark:text-neutral-400">
-							{p.label}<span class="ml-1 text-neutral-400 dark:text-neutral-500 tp-left">-</span>还剩
-						</span>
-						<span class="font-semibold tp-pct text-(--primary)">-</span>
+			{
+				[
+					{ id: "year", label: "本年" },
+					{ id: "month", label: "本月" },
+					{ id: "week", label: "本周" },
+					{ id: "day", label: "今日" },
+				].map((p) => (
+					<div data-period={p.id} class="space-y-1">
+						<div class="flex items-center justify-between text-sm">
+							<span class="text-neutral-600 dark:text-neutral-400">
+								{p.label}<span class="ml-1 text-neutral-400 dark:text-neutral-500 tp-left">-</span>还剩
+							</span>
+							<span class="font-semibold tp-pct text-(--primary)">-</span>
+						</div>
+						<div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+							<div
+								class="h-full rounded-full bg-(--primary) transition-all duration-700 tp-bar"
+								style="width:0%"
+							></div>
+						</div>
 					</div>
-					<div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
-						<div
-							class="h-full rounded-full bg-(--primary) transition-all duration-700 tp-bar"
-							style="width:0%"
-						></div>
-					</div>
-				</div>
-			{/each}
+				))
+			}
 		</div>
 	</div>
 </WidgetLayout>
@@ -175,7 +179,8 @@ const countdownsJson = JSON.stringify(countdowns);
 		document.querySelectorAll("[data-countdown]").forEach((el) => {
 			const dateStr = el.getAttribute("data-date");
 			const manual = el.getAttribute("data-daysleft");
-			const days = manual ? parseInt(manual, 10) : daysUntil(dateStr);
+			const manualDays = manual && manual.trim() !== "" ? parseInt(manual, 10) : NaN;
+			const days = Number.isNaN(manualDays) ? daysUntil(dateStr) : manualDays;
 			el.querySelector(".countdown-days").textContent = Math.max(days, 0);
 			el.querySelector(".countdown-date").textContent = dateStr;
 		});
