@@ -99,8 +99,8 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 组件类型：今日一言
-			type: "quoteOfTheDay",
+			// 组件类型：留言板（内嵌评论系统）
+			type: "guestbook",
 			// 是否启用该组件
 			enable: true,
 			// 组件位置
