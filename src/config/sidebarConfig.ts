@@ -99,14 +99,14 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 组件类型：留言板（内嵌评论系统）
-			type: "guestbook",
+			// 组件类型：今日一言
+			type: "quoteOfTheDay",
 			// 是否启用该组件
 			enable: true,
 			// 组件位置
 			position: "sticky",
 			// 是否在文章详情页显示
-			showOnPostPage: false,
+			showOnPostPage: true,
 		},
 		{
 			// 组件类型：Umami 统计（总浏览量 / 访问数 / 游客数）
