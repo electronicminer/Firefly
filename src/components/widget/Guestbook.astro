@@ -11,7 +11,7 @@ const { class: className, style } = Astro.props;
 ---
 
 <WidgetLayout name=" 留言板" id="guestbook-widget" class={className} style={style}>
-	<Comment customPath="/guestbook/" loading="eager" />
+	<Comment customPath="/guestbook/" />
 </WidgetLayout>
 
 <style>

@@ -14,11 +14,9 @@ interface Props {
 	post?: CollectionEntry<"posts"> | CollectionEntry<"spec">;
 	customPath?: string;
 	title?: string;
-	/** 覆盖 Giscus 加载方式（eager/lazy），仅 giscus 生效 */
-	loading?: string;
 }
 
-const { post, customPath, title: customTitle, loading } = Astro.props as Props;
+const { post, customPath, title: customTitle } = Astro.props as Props;
 
 // 根据页面类型确定路径
 const slugFromPath = (customPath || "/").replace(/^\/+|\/+$/g, "") || "index";
@@ -60,7 +58,7 @@ let commentService: string = commentConfig?.type || "none";
       <div class="relative z-10 pl-2 pr-2">
         {commentService === "twikoo" && <Twikoo path={path} />}
         {commentService === "waline" && <Waline path={path} />}
-        {commentService === "giscus" && <Giscus loading={loading} />}
+        {commentService === "giscus" && <Giscus />}
         {commentService === "disqus" && <Disqus identifier={slug} url={url} title={customTitle || postTitle || slug} />}
           {commentService === "artalk" && <Artalk path={path} />}
         {commentService === "none" && (
