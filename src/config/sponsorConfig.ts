@@ -42,5 +42,12 @@ export const sponsorConfig: SponsorConfig = {
 	],
 
 	// 打赏者列表（可选）
-	sponsors: [],
+	sponsors: [
+		{
+			name: "Deepsleepless",
+			// avatar: "/assets/images/sponsor/deepsleepless.png",
+			amount: "200 元",
+			date: "2026-08-16",
+		},
+	],
 };
