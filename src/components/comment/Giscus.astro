@@ -1,6 +1,13 @@
 ---
 import { commentConfig } from "@/config";
 
+interface Props {
+	/** 覆盖加载方式："lazy"（延迟加载）或 "eager"（立即加载），默认用配置值 */
+	loading?: string;
+}
+
+const { loading: loadingOverride } = Astro.props as Props;
+
 if (!commentConfig?.giscus) {
 	throw new Error("Giscus comments are not configured");
 }
@@ -8,6 +15,7 @@ if (!commentConfig?.giscus) {
 const giscus = commentConfig.giscus;
 const lightTheme = "light";
 const darkTheme = "dark";
+const loading = loadingOverride || giscus.loading;
 ---
 
 <!-- 
@@ -27,7 +35,7 @@ const darkTheme = "dark";
   inputPosition={giscus.inputPosition}
   theme={lightTheme}
   lang={giscus.lang}
-  loading={giscus.loading}
+  loading={loading}
 />
 
 <script is:inline define:vars={{ lightTheme, darkTheme }}>
