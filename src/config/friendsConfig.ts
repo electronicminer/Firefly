@@ -22,7 +22,7 @@ export const friendsPageConfig: FriendsPageConfig = {
 
 // 友链配置
 export const friendsConfig: FriendLink[] = [
-	// 添加友链示例：
+		// 添加友链示例：
 	// {
 	// 	title: "朋友的项目",
 	// 	imgurl: "https://example.com/avatar.png",
@@ -32,6 +32,15 @@ export const friendsConfig: FriendLink[] = [
 	// 	weight: 10, // 权重，数字越大排序越靠前
 	// 	enabled: true, // 是否启用
 	// },
+	{
+		title: "DeepSleeplesss",
+		imgurl: "/assets/images/friends/deepsleeplesss.jpeg",
+		desc: "GitHub 主页",
+		siteurl: "https://github.com/DeepSleeplesss",
+		tags: ["GitHub"],
+		weight: 10, // 权重，数字越大排序越靠前
+		enabled: true, // 是否启用
+	},
 ];
 
 // 获取启用的友链并进行排序
