@@ -11,23 +11,12 @@ const { class: className, style } = Astro.props;
 ---
 
 <WidgetLayout name=" 留言板" id="guestbook-widget" class={className} style={style}>
-	<!-- 内嵌评论：撑满侧边栏卡片宽度，去掉多余的卡片内边距和标题 -->
-	<div class="guestbook-comment">
-		<Comment customPath="/guestbook/" />
-	</div>
+	<Comment customPath="/guestbook/" />
 </WidgetLayout>
 
 <style>
-	/* 让内嵌评论占满卡片宽度，缩小内边距以适配窄侧边栏 */
-	:global(#guestbook-widget .guestbook-comment #post-comments) {
-		padding: 0.5rem !important;
-		margin: 0 !important;
-	}
-	:global(#guestbook-widget .guestbook-comment .relative.mb-6) {
-		display: none; /* 隐藏「评论区」大标题，节省侧边栏空间 */
-	}
-	:global(#guestbook-widget .guestbook-comment iframe) {
+	/* 让内嵌评论区撑满侧边栏卡片宽度 */
+	:global(#guestbook-widget giscus-widget) {
 		width: 100% !important;
-		max-width: none !important;
 	}
 </style>
