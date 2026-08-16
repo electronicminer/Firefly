@@ -97,11 +97,10 @@ const managerConfigStr = JSON.stringify({
 
     // ── Audio element (persistent, attached to body) ────────
     var audio = document.createElement('audio');
+    audio.id = 'firefly-music-audio';
     audio.crossOrigin = 'anonymous';
     audio.style.display = 'none';
-    audio.preload = 'none'; // 阻止浏览器预加载和自动恢复播放
     document.body.appendChild(audio);
-    audio.pause(); // 确保不自动播放
 
     // ── State ────────────────────────────────────────────────
     var loadVersion = 0; // incremented on each loadTrack to discard stale play() results
@@ -203,20 +202,23 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    var currentTrackUrls = [];
-    var currentTrackUrlIndex = 0;
-    var errorSkipTimeout = null;
+    // ── Track loading ────────────────────────────────────────
+    function loadTrack(index, autoPlay) {
+        if (index < 0 || index >= state.playlist.length) return;
+        state.currentIndex = index;
+        var track = state.playlist[index];
+        var ver = ++loadVersion;
 
-    function tryPlayCurrentTrackUrl(autoPlay, ver) {
-        if (ver !== loadVersion) return;
-        var playUrl = currentTrackUrls[currentTrackUrlIndex];
-        audio.src = playUrl;
+        audio.src = track.url;
+
+        loadLyrics(track);
+
+        emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         if (autoPlay) {
             audio.play().then(function () {
                 if (ver !== loadVersion) return; // stale, discard
                 state.isPlaying = true;
-                state.error = null;
                 emit('fm:play-state', { isPlaying: true });
             }).catch(function (e) {
                 if (ver !== loadVersion) return; // stale, discard
@@ -229,51 +231,19 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    // ── Track loading ────────────────────────────────────────
-    function loadTrack(index, autoPlay) {
-        if (index < 0 || index >= state.playlist.length) return;
-        state.currentIndex = index;
-        var track = state.playlist[index];
-        var ver = ++loadVersion;
-
-        if (errorSkipTimeout) {
-            clearTimeout(errorSkipTimeout);
-            errorSkipTimeout = null;
-        }
-
-        currentTrackUrls = [track.url];
-        currentTrackUrlIndex = 0;
-
-        var matchId = track.url.match(/[?&]id=([^&]+)/);
-        var matchServer = track.url.match(/[?&]server=([^&]+)/);
-        if (matchId && matchServer && config.meting && config.meting.fallbackApis) {
-            config.meting.fallbackApis.forEach(function (fallback) {
-                var fallbackUrl = fallback
-                    .replace(':server', matchServer[1])
-                    .replace(':type', 'url')
-                    .replace(':id', matchId[1]);
-                if (currentTrackUrls.indexOf(fallbackUrl) === -1) {
-                    currentTrackUrls.push(fallbackUrl);
-                }
-            });
-        }
-
-        loadLyrics(track);
-
-        emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
-
-        tryPlayCurrentTrackUrl(autoPlay, ver);
-    }
-
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
         if (audio.paused) {
+            if (!audio.src && state.playlist.length > 0) {
+                loadTrack(0, true);
+                return;
+            }
             audio.play().then(function () {
                 state.isPlaying = true;
                 emit('fm:play-state', { isPlaying: true });
             }).catch(function (e) {
                 if (e.name === 'AbortError') return;
-                console.warn('Playback failed:', e);
+                console.warn('Play failed:', e);
             });
         } else {
             audio.pause();
@@ -350,6 +320,65 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
+    var defaultPlaylistId = config.meting ? config.meting.id : '';
+
+    async function switchPlaylist(newId) {
+        if (!config.meting) return;
+        var apis = [config.meting.api].concat(config.meting.fallbackApis || []);
+        var playlistData = [];
+
+        for (var i = 0; i < apis.length; i++) {
+            var baseApi = apis[i];
+            if (!baseApi) continue;
+            try {
+                var fetchUrl = baseApi
+                    .replace(':server', config.meting.server)
+                    .replace(':type', config.meting.type)
+                    .replace(':id', newId)
+                    .replace(':r', Math.random());
+                if (config.meting.auth) fetchUrl += '&auth=' + config.meting.auth;
+
+                var res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                var data = await res.json();
+
+                if (Array.isArray(data) && data.length > 0) {
+                    playlistData = data.map(function (item) {
+                        return {
+                            name: item.title || item.name || 'Unknown',
+                            artist: item.author || item.artist || 'Unknown',
+                            url: item.url,
+                            pic: item.pic || item.cover || '',
+                            lrc: item.lrc
+                        };
+                    });
+                    break;
+                }
+            } catch (e) {
+                console.warn('Switch playlist API failed for ' + baseApi, e);
+            }
+        }
+
+        if (playlistData.length === 0) {
+            emit('fm:error', { message: '切换歌单失败：无法获取歌单数据' });
+            return;
+        }
+
+        state.playlist = playlistData;
+        state.currentIndex = 0;
+        localStorage.setItem('music-playlist-id', newId);
+        emit('fm:playlist-changed', { playlist: playlistData, playlistId: newId });
+        loadTrack(0, false);
+    }
+
+    async function resetPlaylist() {
+        if (!config.meting) return;
+        var targetId = defaultPlaylistId;
+        if (!targetId) return;
+        localStorage.removeItem('music-playlist-id');
+        await switchPlaylist(targetId);
+    }
+
     // ── Audio events → broadcast ─────────────────────────────
     audio.addEventListener('timeupdate', function () {
         if (isNaN(audio.duration)) return;
@@ -384,22 +413,8 @@ const managerConfigStr = JSON.stringify({
     });
 
     audio.addEventListener('error', function () {
-        var ver = loadVersion;
-        if (currentTrackUrlIndex < currentTrackUrls.length - 1) {
-            currentTrackUrlIndex++;
-            console.warn('Playback failed, trying fallback URL: ' + currentTrackUrls[currentTrackUrlIndex]);
-            tryPlayCurrentTrackUrl(true, ver);
-        } else {
-            state.error = 'Audio playback error';
-            emit('fm:error', { message: '播放失败，即将自动跳过...' });
-
-            if (errorSkipTimeout) clearTimeout(errorSkipTimeout);
-            errorSkipTimeout = setTimeout(function () {
-                if (ver === loadVersion) {
-                    playNext(true);
-                }
-            }, 2000);
-        }
+        state.error = 'Audio playback error';
+        emit('fm:error', { message: state.error });
     });
 
     // ── Init (idempotent) ────────────────────────────────────
@@ -409,7 +424,16 @@ const managerConfigStr = JSON.stringify({
 
         try {
             if (config.mode === 'meting' && config.meting) {
-                await fetchMetingData();
+                var savedId = localStorage.getItem('music-playlist-id');
+                if (savedId && savedId !== config.meting.id) {
+                    // Use saved playlist ID instead of default
+                    var origId = config.meting.id;
+                    config.meting.id = savedId;
+                    await fetchMetingData();
+                    config.meting.id = origId;
+                } else {
+                    await fetchMetingData();
+                }
             } else if (config.mode === 'local') {
                 state.playlist = config.localPlaylist || [];
             }
@@ -492,7 +516,10 @@ const managerConfigStr = JSON.stringify({
         seek: seek,
         seekToTime: seekToTime,
         playTrackByIndex: playTrackByIndex,
-        loadTrack: loadTrack
+        switchPlaylist: switchPlaylist,
+        resetPlaylist: resetPlaylist,
+        loadTrack: loadTrack,
+        getDefaultPlaylistId: function () { return defaultPlaylistId; }
     };
 })();
 </script>
