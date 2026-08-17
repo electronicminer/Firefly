@@ -82,12 +82,31 @@ const dynamicCollection: ContentCollection<DynamicData> = defineCollection({
 	}),
 });
 
+// 资源集合：存放如"今日一言"等小数据（从 markdown 文件读取，方便编辑）
+const ziyuanCollection = defineCollection({
+	loader: glob({ pattern: "**/*.md", base: "./src/content/ziyuan" }),
+	schema: z.object({
+		title: z.string(),
+		quotes: z
+			.array(
+				z.object({
+					text: z.string(),
+					author: z.string(),
+				}),
+			)
+			.optional()
+			.default([]),
+	}),
+});
+
 export const collections: {
 	dynamic: typeof dynamicCollection;
 	posts: typeof postsCollection;
 	spec: typeof specCollection;
+	ziyuan: typeof ziyuanCollection;
 } = {
 	dynamic: dynamicCollection,
 	posts: postsCollection,
 	spec: specCollection,
+	ziyuan: ziyuanCollection,
 };

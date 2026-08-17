@@ -1,39 +1,12 @@
 ---
+import { getCollection } from "astro:content";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 
-// 一言语录库，可自行增删
-const quotes: { text: string; author: string }[] = [
-	{ text: "种一棵树最好的时间是十年前，其次是现在。", author: "非洲谚语" },
-	{ text: "路虽远，行则将至；事虽难，做则必成。", author: "《荀子·修身》" },
-	{ text: "星星之火，可以燎原。", author: "《尚书》" },
-	{ text: "纸上得来终觉浅，绝知此事要躬行。", author: "陆游" },
-	{ text: "不积跬步，无以至千里。", author: "荀子" },
-	{ text: "山重水复疑无路，柳暗花明又一村。", author: "陆游" },
-	{ text: "生活不止眼前的苟且，还有诗和远方。", author: "高晓松" },
-	{ text: "凡是过往，皆为序章。", author: "莎士比亚" },
-	{ text: "保持热爱，奔赴山海。", author: "网络" },
-	{ text: "日拱一卒，功不唐捐。", author: "胡适" },
-	{ text: "博观而约取，厚积而薄发。", author: "苏轼" },
-	{ text: "少年易老学难成，一寸光阴不可轻。", author: "朱熹" },
-	{ text: "千里之行，始于足下。", author: "老子" },
-	{ text: "长风破浪会有时，直挂云帆济沧海。", author: "李白" },
-	{ text: "天行健，君子以自强不息。", author: "《周易》" },
-	{ text: "业精于勤，荒于嬉；行成于思，毁于随。", author: "韩愈" },
-	{ text: "世界以痛吻我，要我报之以歌。", author: "泰戈尔" },
-	{ text: "本来无一物，何处惹尘埃。", author: "惠能" },
-	{ text: "心中有丘壑，眉目作山河。", author: "网络" },
-	{ text: "慢一点，比较快。", author: "网络" },
-	{ text: "怕什么真理无穷，进一寸有一寸的欢喜。", author: "胡适" },
-	{ text: "愿你出走半生，归来仍是少年。", author: "网络" },
-	{ text: "万物皆有裂痕，那是光照进来的地方。", author: "莱昂纳德·科恩" },
-	{ text: "我们一路奋战，不是为了改变世界，而是不让世界改变我们。", author: "《熔炉》" },
-	{ text: "知足且坚定，温柔且上进。", author: "网络" },
-	{ text: "满地都是六便士，他却抬头看见了月亮。", author: "毛姆" },
-	{ text: "岁月不饶人，我亦未曾饶过岁月。", author: "木心" },
-	{ text: "既然选择了远方，便只顾风雨兼程。", author: "汪国真" },
-	{ text: "精诚所至，金石为开。", author: "《后汉书》" },
-	{ text: "越是艰难处，越是修心时。", author: "王阳明" },
-];
+// 从 content/ziyuan/quote.md 读取名言数据
+const ziyuanEntries = await getCollection("ziyuan");
+const quoteEntry = ziyuanEntries.find((e) => e.id === "quote");
+const quotes = (quoteEntry?.data as { quotes?: { text: string; author: string }[] })
+	?.quotes || [];
 
 interface Props {
 	class?: string;
