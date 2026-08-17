@@ -1,7 +1,7 @@
 ---
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 
-// 今日一言语录库，可自行增删
+// 一言语录库，可自行增删
 const quotes: { text: string; author: string }[] = [
 	{ text: "种一棵树最好的时间是十年前，其次是现在。", author: "非洲谚语" },
 	{ text: "路虽远，行则将至；事虽难，做则必成。", author: "《荀子·修身》" },
@@ -42,26 +42,35 @@ interface Props {
 
 const { class: className, style } = Astro.props;
 
-// 使用日期作为随机种子，确保同一天显示相同的名言
-const today = new Date();
-const dateStr = today.toISOString().split("T")[0];
-const seed = dateStr
-	.split("")
-	.reduce((acc, char) => acc + char.charCodeAt(0), 0);
-const randomIndex = seed % quotes.length;
-const quote = quotes[randomIndex] || { text: "暂无名言", author: "" };
+const quotesJson = JSON.stringify(quotes);
 ---
 
 <WidgetLayout name="✨ 今日一言" id="quote-of-the-day" class={className} style={style}>
 	<div class="quote-content">
 		<blockquote class="quote-text">
 			<span class="quote-mark">"</span>
-			{quote.text}
+			<span class="quote-body">正在抽选一言…</span>
 			<span class="quote-mark">"</span>
 		</blockquote>
-		<cite class="quote-author">-- {quote.author}</cite>
+		<cite class="quote-author">-- </cite>
 	</div>
 </WidgetLayout>
+
+<script is:inline define:vars={{ quotesJson }}>
+	// 每次页面加载随机抽选一条（含 Swup 页面切换）
+	(function () {
+		var quotes = JSON.parse(quotesJson);
+		function pick() {
+			var q = quotes[Math.floor(Math.random() * quotes.length)];
+			var body = document.querySelector("#quote-of-the-day .quote-body");
+			var cite = document.querySelector("#quote-of-the-day .quote-author");
+			if (body) body.textContent = q ? q.text : "";
+			if (cite) cite.textContent = "-- " + (q ? q.author : "");
+		}
+		pick();
+		document.addEventListener("swup:contentReplaced", pick);
+	})();
+</script>
 
 <style>
 	.quote-content {
