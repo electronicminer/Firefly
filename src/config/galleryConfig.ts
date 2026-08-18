@@ -12,7 +12,16 @@ export const galleryConfig: GalleryConfig = {
 	// 	date: "2026-01-01",
 	// 	tags: ["标签"],
 	// },
-	albums: [],
+	albums: [
+		{
+			id: "sanqingshan",
+			name: "三清山之旅",
+			description: "巨蟒出山、东方女神与云端栈道",
+			location: "江西·上饶·三清山",
+			date: "2026-08-18",
+			tags: ["旅行", "三清山"],
+		},
+	],
 
 	// 瀑布流最小列宽(px)，浏览器根据容器宽度自动计算列数，默认 240
 	// 值越小列数越多，值越大列数越少

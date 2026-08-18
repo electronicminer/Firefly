@@ -31,14 +31,23 @@ const quotesJson = JSON.stringify(quotes);
 
 <script is:inline define:vars={{ quotesJson }}>
 	// 每次页面加载随机抽选一条（含 Swup 页面切换）
+	// 注意：桌面侧栏和移动端底部会渲染两个同 id 实例，必须全部更新
 	(function () {
 		var quotes = JSON.parse(quotesJson);
 		function pick() {
 			var q = quotes[Math.floor(Math.random() * quotes.length)];
-			var body = document.querySelector("#quote-of-the-day .quote-body");
-			var cite = document.querySelector("#quote-of-the-day .quote-author");
-			if (body) body.textContent = q ? q.text : "";
-			if (cite) cite.textContent = "-- " + (q ? q.author : "");
+			var text = q ? q.text : "";
+			var author = "-- " + (q ? q.author : "");
+			document
+				.querySelectorAll("#quote-of-the-day .quote-body")
+				.forEach(function (el) {
+					el.textContent = text;
+				});
+			document
+				.querySelectorAll("#quote-of-the-day .quote-author")
+				.forEach(function (el) {
+					el.textContent = author;
+				});
 		}
 		pick();
 		document.addEventListener("swup:contentReplaced", pick);
