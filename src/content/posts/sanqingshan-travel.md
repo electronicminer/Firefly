@@ -14,12 +14,15 @@ image: "/gallery/sanqingshan/cover.avif"
 
 三清山能坐缆车上去，我们出发前随便搜了一下，听说有金沙、外双溪还有港首三个索道。看了一下网友推荐，说**港首索道**排队的人相对少一点，就直接选了这个。到了发现确实没怎么排长队，还挺顺利的。
 
-![山脚下的索道起点站](/gallery/sanqingshan/05.avif)
+![缆车视角的云海与山峦](/gallery/sanqingshan/08.avif)
 
 坐缆车的时候往下看，满眼都是绿，越往高走，雾气就越重。一会儿功夫，前面就看不清路了，真的就像泡在云里一样。坐在这种密封的缆车轿厢里，隔着玻璃看外面的山体和云海，还是挺特别的体验。
 
-![缆车穿越云海](/gallery/sanqingshan/07.avif)
-![缆车视角的云海与山峦](/gallery/sanqingshan/08.avif)
+山路上突然听见很大的呼啸声，抬头看有出乎意料的惊喜啊，看到战斗机了！
+![山和云海](/gallery/sanqingshan/05.avif)
+
+![看到歼-20了](/gallery/sanqingshan/07.avif)
+
 
 ## 走栈道：风景是真的好，走起来也是真的累
 
@@ -37,7 +40,6 @@ image: "/gallery/sanqingshan/cover.avif"
 
 ![伸展的松枝与天空](/gallery/sanqingshan/11.avif)
 ![峭壁上的奇松](/gallery/sanqingshan/02.avif)
-![松树画框里的远山](/gallery/sanqingshan/01.avif)
 
 不过走久了，说实话，腿还是挺酸的。虽然栈道修得比较平，但一圈走下来，还是费了不少体力。我妈走一段就得在栏杆边上歇一会儿。
 
